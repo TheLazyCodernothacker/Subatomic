@@ -4,66 +4,34 @@ const port = 3000;
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  ui = [
-    `<button onclick="cookies++;render();">Press me</button><input id="asdf"/><button onclick="todos.push(asdf.value);render()">add todo</button>`,
-    Cookies({ cookies }),
-    ...todos.map((a) => {
-      return `<h1>${a}</h1>`;
-    }),
-  ];
-  res.send(
-    build(
-      ui,
-      () => {
-        let cookies = 0;
-        let todos = [];
-        let start = false;
-      },
-      () => {
-        console.log("success");
-      }
-    )
-  );
+  import("./pages/page.mjs").then((a) => {
+    res.send(
+      build(
+        a.default.render,
+        a.default.state,
+        a.default.init,
+        a.default.components
+      )
+    );
+  });
 });
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
 
-let cookies = 0;
-let todos = [];
-let start = false;
-
-function render() {
-  if (!start) {
-    init();
-  }
-  ui = [
-    `<button onclick="cookies++;render();">Press me</button><input id="asdf"/><button onclick="todos.push(asdf.value);render()">add todo</button>`,
-    Cookies({ cookies }),
-    ...todos.map((a) => {
-      return `<h1>${a}</h1>`;
-    }),
-  ];
-  document.body.innerHTML = "";
-  document.write(`<body>${parseArray(ui)}</body>`);
-}
-
-function Cookies({ cookies }) {
-  return `<h1>${cookies}</h1>`;
-}
-
 function parseArray(arr) {
   return arr.join("");
 }
 
-function build(ui, state, init) {
+function build(render, state, init, components) {
   if (init) {
     init();
   }
   if (state) {
     state();
   }
+  console.log(state.toString());
   let content = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,7 +41,22 @@ function build(ui, state, init) {
   <title>Document</title>
 </head>
 <body>
-  ${parseArray(ui)}
+  ${parseArray(render(true))}
+  <script>
+  function parseArray(arr) {
+  return arr.join("");
+}
+      ${state.toString()}
+    ${render.toString()}
+    ${init.toString()}
+    ${components.map((a) => {
+      return `${a.toString()}`;
+    })}
+  let start = false;
+let variables = {};
+    state();
+    render();
+  </script>
 </body>
 </html>`;
   return content;
