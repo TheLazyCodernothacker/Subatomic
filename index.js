@@ -59,7 +59,7 @@ function build(render, state, init, components) {
     })}
   let start = false;
 let variables = {};
-let effects = {};
+let effectVariables = {};
     state();
     render();
     init();

@@ -18,6 +18,9 @@ function render(build) {
     asdf.onchange = () => {
       variables.input = asdf.value;
     };
+    Object.keys(variables).forEach((a) => {
+      effectVariables[a] = variables[a];
+    });
   }
   if (build) {
     return ui;
@@ -42,6 +45,8 @@ async function init() {
     const test = await fetch("https://jsonplaceholder.typicode.com/todos/1");
     const json = await test.json();
     console.log(json);
+    variables.todos.push(json.title);
+    render();
   } catch (e) {}
 }
 
@@ -63,5 +68,10 @@ const page = {
   middleware: [auth],
   sideEffects: [],
 };
+
+function useEffect(func, deps) {
+  if (typeof document !== "undefined") {
+  }
+}
 
 export default page;
