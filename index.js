@@ -5,6 +5,11 @@ app.use(express.static("public"));
 
 app.get("/", (req, res) => {
   import("./pages/page.mjs").then((a) => {
+    a.default.middleware.forEach((a) => {
+      if (!a(req, res)) {
+        res.send("Unauthorized");
+      }
+    });
     res.send(
       build(
         a.default.render,
@@ -54,8 +59,10 @@ function build(render, state, init, components) {
     })}
   let start = false;
 let variables = {};
+let effects = {};
     state();
     render();
+    init();
   </script>
 </body>
 </html>`;
