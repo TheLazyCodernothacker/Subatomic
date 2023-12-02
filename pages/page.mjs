@@ -17,8 +17,7 @@ function render(build) {
     }),
   ];
   if (typeof document !== "undefined") {
-    document.body.innerHTML = "";
-    document.write(`<body>${parseArray(ui)}</body>`);
+    document.body.innerHTML = `<body>${parseArray(ui)}</body>`;
   }
   if (build) {
     return ui;
@@ -45,7 +44,7 @@ const page = {
   render: render,
   state: state,
   init: init,
-  components: [Cookies]
+  components: [Cookies],
 };
 
 export default page;
