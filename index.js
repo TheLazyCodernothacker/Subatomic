@@ -51,6 +51,19 @@ function build(render, state, init, components) {
   function parseArray(arr) {
   return arr.join("");
 }
+function useEffect(func, deps) {
+  if (typeof document !== "undefined") {
+    let run = false;
+    deps.forEach((a) => {
+      if (effectVariables[a] !== variables[a]) {
+        run = true;
+      }
+    });
+    if (run) {
+      func();
+    }
+  }
+}
       ${state.toString()}
     ${render.toString()}
     ${init.toString()}

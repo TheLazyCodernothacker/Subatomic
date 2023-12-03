@@ -13,6 +13,9 @@ function render(build) {
     }),
   ];
   if (typeof document !== "undefined") {
+    useEffect(() => {
+      console.log(variables.cookies);
+    }, ["cookies"]);
     document.body.innerHTML = `<body>${parseArray(ui)}</body>`;
     asdf.value = variables.input;
     asdf.onchange = () => {
@@ -71,6 +74,15 @@ const page = {
 
 function useEffect(func, deps) {
   if (typeof document !== "undefined") {
+    let run = false;
+    deps.forEach((a) => {
+      if (effectVariables[a] !== variables[a]) {
+        run = true;
+      }
+    });
+    if (run) {
+      func();
+    }
   }
 }
 
