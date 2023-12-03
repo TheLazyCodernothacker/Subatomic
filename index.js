@@ -49,7 +49,8 @@ function build(render, state, init, components, req, res, title, description) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/pico.min.css">
   <title>${title}</title>
-  <description>${description}</description>
+  <meta name="description" content="${description}">
+
 </head>
 <body>
   ${parseArray(ui)}
