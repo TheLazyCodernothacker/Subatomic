@@ -15,7 +15,9 @@ app.get("/", (req, res) => {
         a.default.render,
         a.default.state,
         a.default.init,
-        a.default.components
+        a.default.components,
+        req,
+        res
       )
     );
   });
@@ -29,14 +31,14 @@ function parseArray(arr) {
   return arr.join("");
 }
 
-function build(render, state, init, components) {
+function build(render, state, init, components, req, res) {
   if (init) {
     init();
   }
   if (state) {
     state();
   }
-  console.log(state.toString());
+  let [ui, variables] = render(true, req, res);
   let content = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,7 +49,7 @@ function build(render, state, init, components) {
   <title>Document</title>
 </head>
 <body>
-  ${parseArray(render(true))}
+  ${parseArray(ui)}
   <script>
   function parseArray(arr) {
   return arr.join("");
@@ -68,13 +70,20 @@ function useEffect(func, deps) {
       ${state.toString()}
     ${render.toString()}
     ${init.toString()}
-    ${components.map((a) => {
-      return `${a.toString()}`;
-    })}
+    ${components
+      .map((a) => {
+        return `${a.toString()}`;
+      })
+      .join(";")}
   let start = false;
-let variables = {};
+let variables = {${Object.keys(variables).map((a) => {
+    return `${a}: ${
+      typeof variables[a] === "function"
+        ? variables[a].toString()
+        : JSON.stringify(variables[a])
+    }`;
+  })}};
 let effectVariables = {};
-    state();
     render();
     init();
   </script>

@@ -1,20 +1,38 @@
+import Button from "../components/Button.mjs";
+
 let variables = {};
 
-function render(build) {
+function render(build, req, res) {
+  console.log(variables);
   if (build) {
     state();
-    console.log(variables);
+    variables.Test = function (req) {
+      if (req) {
+        variables.Test = function () {
+          return `<h1>Success</h1>`;
+        };
+      } else {
+        variables.Test = function () {
+          return `<h1>Failure</h1>`;
+        };
+      }
+    };
+    variables.Test(req);
   }
   let ui = [
-    `<button onclick="variables.cookies++;render();">Press me</button><input id="asdf"/><button onclick="variables.todos.push(asdf.value);render()">add todo</button>`,
+    `<h1>Easy state management across components</h1>`,
+    `<button onclick="variables.cookies++;render();">Component found in current page</button>`,
+    Button(variables),
     Cookies(variables.cookies),
+    variables.Test(),
+    `<input id="asdf"/><button onclick="variables.todos.push(asdf.value);render()">State management witih arrays with simple .push() syntax</button><button onclick="variables.todos.pop();render()">State management witih arrays with simple .pop() syntax</button>`,
     ...variables.todos.map((a) => {
       return `<h1>${a}</h1>`;
     }),
   ];
   if (typeof document !== "undefined") {
     useEffect(() => {
-      console.log(variables.cookies);
+      alert("use effect to run side effects");
     }, ["cookies"]);
     document.body.innerHTML = `<body>${parseArray(ui)}</body>`;
     asdf.value = variables.input;
@@ -26,14 +44,15 @@ function render(build) {
     });
   }
   if (build) {
-    return ui;
+    console.log("returning", variables);
+    return [ui, variables];
   }
 }
 
 state();
 
-function Cookies(cookies) {
-  return `<h1>${cookies}</h1>`;
+function Cookies() {
+  return `<h1>${variables.cookies}</h1>`;
 }
 
 function state() {
@@ -44,7 +63,7 @@ function state() {
 
 async function init() {
   try {
-    alert("App created with Subatomic.js");
+    alert("Run code after first render with init");
     const test = await fetch("https://jsonplaceholder.typicode.com/todos/1");
     const json = await test.json();
     console.log(json);
@@ -67,7 +86,7 @@ const page = {
   render: render,
   state: state,
   init: init,
-  components: [Cookies],
+  components: [Cookies, Button],
   middleware: [auth],
   sideEffects: [],
 };
