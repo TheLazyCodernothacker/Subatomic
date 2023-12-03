@@ -81,3 +81,33 @@ let effectVariables = {};
 </html>`;
   return content;
 }
+
+app.get("/*", (req, res) => {
+  const params = req.params[0].split("/");
+  console.log(params);
+  import(
+    `./pages/${`./pages/${params
+      .map((p) => {
+        return `${p}/`;
+      })
+      .join("")}page.mjs`}page.mjs`
+  )
+    .then((a) => {
+      a.default.middleware.forEach((a) => {
+        if (!a(req, res)) {
+          res.send("Unauthorized");
+        }
+      });
+      res.send(
+        build(
+          a.default.render,
+          a.default.state,
+          a.default.init,
+          a.default.components
+        )
+      );
+    })
+    .catch((e) => {
+      res.send("Page not found");
+    });
+});
