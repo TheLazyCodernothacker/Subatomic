@@ -9,9 +9,28 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
-  "keywords": ["framework", "full-stack", "minimalist", "ssr", "subatomic"],
-  "author": "", 
+  "keywords": [
+    "framework",
+    "full-stack",
+    "minimalist",
+    "ssr",
+    "subatomic",
+    "psr",
+    "dynamic",
+    "small",
+    "fast",
+    "lightweight",
+    "bundle",
+    "server-side-rendering",
+    "server",
+    "client",
+    "server-side",
+    "client-side",
+    "rendering",
+    "render"
+  ],
+  "author": "",
   "license": "MIT"
 }
