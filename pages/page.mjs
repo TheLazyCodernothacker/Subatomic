@@ -9,11 +9,11 @@ function render(build, req, res) {
     variables.Test = function (req) {
       if (req) {
         variables.Test = function () {
-          return `<h1>Success</h1>`;
+          return `<h1>You are logged in!</h1>`;
         };
       } else {
         variables.Test = function () {
-          return `<h1>Failure</h1>`;
+          return `<h1>You are not logged in!</h1>`;
         };
       }
     };
@@ -24,6 +24,7 @@ function render(build, req, res) {
     `<button onclick="variables.cookies++;render();">Component found in current page</button>`,
     Button(variables),
     Cookies(variables.cookies),
+    `<h1>Create conditional server components</h1>`,
     variables.Test(),
     `<input id="asdf"/><button onclick="variables.todos.push(asdf.value);render()">State management witih arrays with simple .push() syntax</button><button onclick="variables.todos.pop();render()">State management witih arrays with simple .pop() syntax</button>`,
     ...variables.todos.map((a) => {
