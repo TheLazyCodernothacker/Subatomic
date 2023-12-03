@@ -17,7 +17,9 @@ app.get("/", (req, res) => {
         a.default.init,
         a.default.components,
         req,
-        res
+        res,
+        a.default.title,
+        a.default.description
       )
     );
   });
@@ -31,7 +33,7 @@ function parseArray(arr) {
   return arr.join("");
 }
 
-function build(render, state, init, components, req, res) {
+function build(render, state, init, components, req, res, title, description) {
   if (init) {
     init();
   }
@@ -46,7 +48,8 @@ function build(render, state, init, components, req, res) {
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/pico.min.css">
-  <title>Document</title>
+  <title>${title}</title>
+  <description>${description}</description>
 </head>
 <body>
   ${parseArray(ui)}

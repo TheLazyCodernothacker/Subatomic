@@ -90,6 +90,9 @@ const page = {
   components: [Cookies, Button],
   middleware: [auth],
   sideEffects: [],
+  title: "App created with Subatomic.js",
+  description:
+    "Subatomic.js is a minimalistic JS framework with PSR and SSR for creating dyanmic web apps.",
 };
 
 function useEffect(func, deps) {
