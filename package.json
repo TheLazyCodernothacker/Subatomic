@@ -3,7 +3,7 @@
     "express": "^4.18.2",
     "nodemon": "^3.0.2"
   },
-  "name": "subatomic",
+  "name": "subatomicjs",
   "description": "Subatomic JS is the minimalist Full-stack framework with SSR and subatomic bundles.",
   "version": "0.0.1",
   "main": "index.js",
