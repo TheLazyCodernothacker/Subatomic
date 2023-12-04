@@ -86,7 +86,6 @@ function build(
           return `${a.toString()}`;
         })
         .join(";")}
-  let start = false;
 let variables = {${Object.keys(variables).map((a) => {
     return `${a}: ${
       typeof variables[a] === "function"
