@@ -33,7 +33,7 @@ function render(build, req, res) {
   ];
   if (typeof document !== "undefined") {
     useEffect(() => {
-      alert("use effect to run side effects");
+      console.log("use effect to run side effects");
     }, ["cookies"]);
     document.body.innerHTML = `<body>${parseArray(ui)}</body>`;
     asdf.value = variables.input;
@@ -64,7 +64,7 @@ function state() {
 
 async function init() {
   try {
-    alert("Run code after first render with init");
+    console.log("Run code after first render with init");
     const test = await fetch("https://jsonplaceholder.typicode.com/todos/1");
     const json = await test.json();
     console.log(json);

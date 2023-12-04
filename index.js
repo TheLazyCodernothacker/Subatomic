@@ -1,7 +1,25 @@
 const express = require("express");
 const app = express();
+const dotenv = require("dotenv");
+
+dotenv.config();
+
 const port = 3000;
 app.use(express.static("public"));
+
+const GitHubStrategy = require("passport-github").Strategy;
+
+app.get("/robots.txt", (req, res) => {
+  // Customize the robots.txt content based on your requirements
+  const robotsContent = `
+    User-agent: *
+    Disallow: /
+    Allow: /
+    `;
+
+  res.header("Content-Type", "text/plain");
+  res.status(200).send(robotsContent);
+});
 
 app.get("/", (req, res) => {
   import("./pages/page.mjs").then((a) => {
@@ -122,6 +140,7 @@ app.get("/*", (req, res) => {
       );
     })
     .catch((e) => {
+      console.log(e);
       res.send("Page not found");
     });
 });
