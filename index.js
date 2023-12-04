@@ -46,12 +46,6 @@ function parseArray(arr) {
 }
 
 function build(render, state, init, components, title, description, data) {
-  if (init) {
-    init();
-  }
-  if (state) {
-    state();
-  }
   let [ui, variables] = render(true, data);
   let content = `<!DOCTYPE html>
 <html lang="en">
