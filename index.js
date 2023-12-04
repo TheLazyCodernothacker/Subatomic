@@ -22,14 +22,14 @@ app.get("/", (req, res) => {
         res.send("Unauthorized");
       }
     });
+    let data = {};
     res.send(
       build(
         a.default.render,
         a.default.state,
         a.default.init,
         a.default.components,
-        req,
-        res,
+        data,
         a.default.title,
         a.default.description
       )
@@ -45,7 +45,7 @@ function parseArray(arr) {
   return arr.join("");
 }
 
-function build(render, state, init, components, req, res, title, description) {
+function build(render, state, init, components, data, title, description) {
   if (init) {
     init();
   }
