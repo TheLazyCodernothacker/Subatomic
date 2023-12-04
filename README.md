@@ -107,3 +107,33 @@ let ui = [
     }),
   ];
 ```
+We'll get back to what this code does exactly, but now we've declared the UI with all components that were needed so we run this line:
+
+```
+if (build) {
+    console.log("returning", variables);
+    return [ui, variables];
+  }
+```
+We also have this condition before that line of code
+
+```
+  if (typeof document !== "undefined") {
+    useEffect(() => {
+      console.log("use effect to run side effects");
+    }, ["cookies"]);
+    document.body.innerHTML = `<body>${parseArray(ui)}</body>`;
+    asdf.value = variables.input;
+    asdf.onchange = () => {
+      variables.input = asdf.value;
+    };
+    Object.keys(variables).forEach((a) => {
+      effectVariables[a] = variables[a];
+    });
+  }
+```
+This won't run on the build and will only happen on the client. Don't worry, the code executed will not be required for the SEO and can happen on the client. For example the useEffect only needs to be added on the client, and the setting of the html is used for re-rendering the content on the client. Some attributes are also set on the input#asdf, and this should be set on the client because this is the alternate way.
+```
+<input id="asdf" onchange="variables.input = '${asdf.value}'"/>
+```
+And this is an easy way to get code injected from the user and should not be done (both injecting code and this practice.)
