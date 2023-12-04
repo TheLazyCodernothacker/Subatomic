@@ -58,4 +58,26 @@ app.get("/", (req, res) => {
 });
 ```
 There is a lot going on here, so let's break it down.
-The route will fetch the code for /pages/page.mjs, which is always used for the "/" route. If you want a custom route like "/home", create a folder in pages called home and create a page.mjs in there (mjs for module exports.) Afterwards we handle the exports from the file and check for all of the middleware found in the file. This code shows an example of how an auth might work, but middleware is still under more development to create a better dev experience and more sophisticated features.
+The route will fetch the code for /pages/page.mjs, which is always used for the "/" route. If you want a custom route like "/home", create a folder in pages called home and create a page.mjs in there (mjs for module exports.) Afterwards we handle the exports from the file and check for all of the middleware found in the file. This code shows an example of how an auth might work, but middleware is still under more development to create a better dev experience and more sophisticated features. Once the middleware is finished and the server hasn't returned with an exit, the build happens using the code from the imported file.
+
+### The Build
+
+Subatomic.js uses pre-rendering and sends over the initial ui. This is why the build is returned from the render function. The code executed in the build is different from the rendering on the client, but still returns an initial ui for bots and crawlers. The first difference is this: 
+
+```
+if (build) {
+    state();
+    variables.Test = function (req) {
+      if (req) {
+        variables.Test = function () {
+          return `<h1>You are logged in!</h1>`;
+        };
+      } else {
+        variables.Test = function () {
+          return `<h1>You are not logged in!</h1>`;
+        };
+      }
+    };
+    variables.Test(req);
+  }
+```
