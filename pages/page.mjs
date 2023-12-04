@@ -3,7 +3,7 @@ import Button from "../components/Button.mjs";
 let variables = {};
 
 // DANGER ZONE DO NOT CHANGE BELOW UNLESS YOU KNOW WHAT YOU ARE DOING
-function render(build, req, res) { 
+function render(build, data) { 
   console.log(variables);
   if (build) {
     state();
@@ -18,7 +18,7 @@ function render(build, req, res) {
         };
       }
     };
-    variables.Test(req);
+    variables.Test(data.req);
   }
   let ui = [
     `<h1>Easy state management across components</h1>`,
