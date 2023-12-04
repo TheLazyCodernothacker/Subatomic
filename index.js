@@ -1,19 +1,13 @@
 const express = require("express");
 const app = express();
-const dotenv = require("dotenv");
-
-dotenv.config();
-
 const port = 3000;
+
 app.use(express.static("public"));
 
-const GitHubStrategy = require("passport-github").Strategy;
 
 app.get("/robots.txt", (req, res) => {
-  // Customize the robots.txt content based on your requirements
   const robotsContent = `
     User-agent: *
-    Disallow: /
     Allow: /
     `;
 

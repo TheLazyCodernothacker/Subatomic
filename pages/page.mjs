@@ -2,7 +2,8 @@ import Button from "../components/Button.mjs";
 
 let variables = {};
 
-function render(build, req, res) {
+// DANGER ZONE DO NOT CHANGE BELOW UNLESS YOU KNOW WHAT YOU ARE DOING
+function render(build, req, res) { 
   console.log(variables);
   if (build) {
     state();
@@ -73,17 +74,7 @@ async function init() {
   } catch (e) {}
 }
 
-function auth(req, res) {
-  // if (req.cookies.auth === "true") {
-  //   return true;
-  // } else {
-  //   res.send("Unauthorized");
-  //   return false;
-  // }
-  return true;
-}
-
-const page = {
+const page = { 
   render: render,
   state: state,
   init: init,
@@ -94,6 +85,8 @@ const page = {
   description:
     "Subatomic.js is a minimalistic JS framework with PSR and SSR for creating dyanmic web apps.",
 };
+
+// DANGER ZONE DO NOT CHANGE ABOVE UNLESS YOU KNOW WHAT YOU ARE DOING
 
 function useEffect(func, deps) {
   if (typeof document !== "undefined") {
@@ -108,5 +101,15 @@ function useEffect(func, deps) {
     }
   }
 }
+
+//function auth(req, res) {
+  //if (req.cookies.auth === "true") {
+   //return true;
+  //} else {
+     //res.send("Unauthorized");
+     //return false;
+  //}
+  //return true;
+//}
 
 export default page;
