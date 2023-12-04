@@ -29,9 +29,9 @@ app.get("/", (req, res) => {
         a.default.state,
         a.default.init,
         a.default.components,
-        data,
         a.default.title,
-        a.default.description
+        a.default.description,
+        data
       )
     );
   });
@@ -45,14 +45,14 @@ function parseArray(arr) {
   return arr.join("");
 }
 
-function build(render, state, init, components, data, title, description) {
+function build(render, state, init, components, title, description, data) {
   if (init) {
     init();
   }
   if (state) {
     state();
   }
-  let [ui, variables] = render(true, req, res);
+  let [ui, variables] = render(true, data);
   let content = `<!DOCTYPE html>
 <html lang="en">
 <head>
