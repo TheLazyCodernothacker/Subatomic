@@ -4,7 +4,6 @@ const port = 3000;
 
 app.use(express.static("public"));
 
-
 app.get("/robots.txt", (req, res) => {
   const robotsContent = `
     User-agent: *
@@ -29,6 +28,7 @@ app.get("/", (req, res) => {
         a.default.state,
         a.default.init,
         a.default.components,
+        a.default.functions,
         a.default.title,
         a.default.description,
         data
@@ -45,7 +45,16 @@ function parseArray(arr) {
   return arr.join("");
 }
 
-function build(render, state, init, components, title, description, data) {
+function build(
+  render,
+  state,
+  init,
+  components,
+  functions,
+  title,
+  description,
+  data
+) {
   let [ui, variables] = render(true, data);
   let content = `<!DOCTYPE html>
 <html lang="en">
@@ -85,6 +94,11 @@ function useEffect(func, deps) {
         return `${a.toString()}`;
       })
       .join(";")}
+      ${functions
+        .map((a) => {
+          return `${a.toString()}`;
+        })
+        .join(";")}
   let start = false;
 let variables = {${Object.keys(variables).map((a) => {
     return `${a}: ${
