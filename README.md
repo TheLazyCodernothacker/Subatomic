@@ -27,8 +27,35 @@ Please consider using bun as it will make subatomic run even faster than npm
 
 ## Documentation
 
-For documentation, check out our [Github Wiki Page](https://github.com/TheLazyCodernothacker/Subatomic/wiki)
+### About index.js
 
+index.js is where all of your code starts. index.js handles the backend of subatomic.js and uses express out of the box. It also comes with dotenv configured and is ready for more packages to be installed. You can write all of the routes you want like normal, but you wil need your "/" route.
 
-
-
+```
+app.get("/", (req, res) => {
+  //import the corresponding code
+  import("./pages/page.mjs").then((a) => {
+    //handle possible middleware and server code
+    a.default.middleware.forEach((a) => {
+      if (!a(req, res)) {
+        res.send("Unauthorized");
+      }
+    });
+    //send the final build
+    res.send(
+      build(
+        a.default.render,
+        a.default.state,
+        a.default.init,
+        a.default.components,
+        req,
+        res,
+        a.default.title,
+        a.default.description
+      )
+    );
+  });
+});
+```
+There is a lot going on here, so let's break it down.
+The route will fetch the code for /pages/page.mjs, which is always used for the "/" route. If you want a custom route like "/home", create a folder in pages called home and create a page.mjs in there (mjs for module exports.) Afterwards we handle the exports from the file and check for all of the middleware found in the file. This code shows an example of how an auth might work, but middleware is still under more development to create a better dev experience and more sophisticated features.
