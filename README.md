@@ -66,8 +66,8 @@ Subatomic.js uses pre-rendering and sends over the initial ui. This is why the b
 
 ```
 if (build) {
-    state();
-    variables.Test = function (req) {
+    state(); //initialize the variables and state
+    variables.Test = function (req) { //create server components
       if (req) {
         variables.Test = function () {
           return `<h1>You are logged in!</h1>`;
@@ -81,3 +81,14 @@ if (build) {
     variables.Test(req);
   }
 ```
+
+The build will initialize the state first which will set the initial variables
+
+```
+function state() {
+  variables.cookies = 0;
+  variables.todos = [];
+  variables.input = "";
+}
+```
+These need to be set so that the UI can be rendered that may require this state, and also for conditional server components. variables.Test is an example of a conditional server component. If you have content that you may want to show to people that are logged in, then you can create a conditional server component. It runs on the server and returns a new component. This is different then simply returning content based off a condition, because a user could inspect and find information that you might not want them to find. 
