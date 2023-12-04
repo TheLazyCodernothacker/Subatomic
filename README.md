@@ -41,6 +41,7 @@ app.get("/", (req, res) => {
         res.send("Unauthorized");
       }
     });
+    let data = {}; //pass data from the server to the build
     //send the final build
     res.send(
       build(
@@ -48,17 +49,16 @@ app.get("/", (req, res) => {
         a.default.state,
         a.default.init,
         a.default.components,
-        req,
-        res,
         a.default.title,
-        a.default.description
+        a.default.description,
+        data
       )
     );
   });
 });
 ```
 There is a lot going on here, so let's break it down.
-The route will fetch the code for /pages/page.mjs, which is always used for the "/" route. If you want a custom route like "/home", create a folder in pages called home and create a page.mjs in there (mjs for module exports.) Afterwards we handle the exports from the file and check for all of the middleware found in the file. This code shows an example of how an auth might work, but middleware is still under more development to create a better dev experience and more sophisticated features. Once the middleware is finished and the server hasn't returned with an exit, the build happens using the code from the imported file.
+The route will fetch the code for /pages/page.mjs, which is always used for the "/" route. If you want a custom route like "/home", create a folder in pages called home and create a page.mjs in there (mjs for module exports.) Afterwards we handle the exports from the file and check for all of the middleware found in the file. This code shows an example of how an auth might work, but middleware is still under more development to create a better dev experience and more sophisticated features. Once the middleware is finished and the server hasn't returned with an exit, the build happens using the code from the imported file. You may also pass in extra data as the last argument which could be used in the build.
 
 ### The Build
 
