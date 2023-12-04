@@ -142,8 +142,60 @@ This won't run on the build and will only happen on the client. Don't worry, the
 <input id="asdf" onchange="variables.input = '${asdf.value}'"/>
 ```
 And this is an easy way to get code injected from the user and should not be done (both injecting code and this practice.)
-Now that the ui and variables and returned, let go back to index.js to finish the process. We 
+Now that the ui and variables and returned, let go back to index.js to finish the process. 
 ```
 function build(render, state, init, components, title, description, data) {
   let [ui, variables] = render(true, data);
+let content = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/pico.min.css">
+  <title>${title}</title>
+  <meta name="description" content="${description}">
+
+</head>
 ```
+We create this huge string called content which will then be sent to the client. This is just the head of the document, which imports picocss and sets meta data. The body gets more messy, including scripts and the ui.
+```
+<body>
+  ${parseArray(ui)}
+  <script>
+  function parseArray(arr) {
+  return arr.join("");
+}
+    ${render.toString()}
+    ${init.toString()}
+    ${components
+      .map((a) => {
+        return `${a.toString()}`;
+      })
+      .join(";")}
+      ${functions
+        .map((a) => {
+          return `${a.toString()}`;
+        })
+        .join(";")}
+  
+```
+First the ui is passed in and parsed to become valid HTML instead of a simple array. Afterwards we have a script that declares functions that the client will need. It declares the render loop, the init function, all of the components exported, along with functions exported. Methods are used to make sure that these end up as strings so it can be read by the browser in the script tag.
+```
+let variables = {${Object.keys(variables).map((a) => {
+    return `${a}: ${
+      typeof variables[a] === "function"
+        ? variables[a].toString()
+        : JSON.stringify(variables[a])
+    }`;
+  })}};
+let effectVariables = {};
+    render();
+    init();
+  </script>
+</body>
+</html>`;
+  return content;
+}
+```
+Finally we declare the variables and state from the server using some method you don't need to worry about. Afterwards we set up the effect variables and run the first render loop. Afterwards we can run the init function which runs code after and only afer the first render. And that is the long and windy process of building the page, with not too much code!
