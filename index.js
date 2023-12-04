@@ -1,7 +1,25 @@
 const express = require("express");
 const app = express();
+const dotenv = require("dotenv");
+
+dotenv.config();
+
 const port = 3000;
 app.use(express.static("public"));
+
+const GitHubStrategy = require("passport-github").Strategy;
+
+app.get("/robots.txt", (req, res) => {
+  // Customize the robots.txt content based on your requirements
+  const robotsContent = `
+    User-agent: *
+    Disallow: /
+    Allow: /
+    `;
+
+  res.header("Content-Type", "text/plain");
+  res.status(200).send(robotsContent);
+});
 
 app.get("/", (req, res) => {
   import("./pages/page.mjs").then((a) => {
@@ -15,7 +33,11 @@ app.get("/", (req, res) => {
         a.default.render,
         a.default.state,
         a.default.init,
-        a.default.components
+        a.default.components,
+        req,
+        res,
+        a.default.title,
+        a.default.description
       )
     );
   });
@@ -29,14 +51,14 @@ function parseArray(arr) {
   return arr.join("");
 }
 
-function build(render, state, init, components) {
+function build(render, state, init, components, req, res, title, description) {
   if (init) {
     init();
   }
   if (state) {
     state();
   }
-  console.log(state.toString());
+  let [ui, variables] = render(true, req, res);
   let content = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,10 +66,12 @@ function build(render, state, init, components) {
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/pico.min.css">
-  <title>Document</title>
+  <title>${title}</title>
+  <meta name="description" content="${description}">
+
 </head>
 <body>
-  ${parseArray(render(true))}
+  ${parseArray(ui)}
   <script>
   function parseArray(arr) {
   return arr.join("");
@@ -68,13 +92,20 @@ function useEffect(func, deps) {
       ${state.toString()}
     ${render.toString()}
     ${init.toString()}
-    ${components.map((a) => {
-      return `${a.toString()}`;
-    })}
+    ${components
+      .map((a) => {
+        return `${a.toString()}`;
+      })
+      .join(";")}
   let start = false;
-let variables = {};
+let variables = {${Object.keys(variables).map((a) => {
+    return `${a}: ${
+      typeof variables[a] === "function"
+        ? variables[a].toString()
+        : JSON.stringify(variables[a])
+    }`;
+  })}};
 let effectVariables = {};
-    state();
     render();
     init();
   </script>
@@ -109,6 +140,7 @@ app.get("/*", (req, res) => {
       );
     })
     .catch((e) => {
+      console.log(e);
       res.send("Page not found");
     });
 });
