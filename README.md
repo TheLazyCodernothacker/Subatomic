@@ -91,4 +91,19 @@ function state() {
   variables.input = "";
 }
 ```
-These need to be set so that the UI can be rendered that may require this state, and also for conditional server components. variables.Test is an example of a conditional server component. If you have content that you may want to show to people that are logged in, then you can create a conditional server component. It runs on the server and returns a new component. This is different then simply returning content based off a condition, because a user could inspect and find information that you might not want them to find. 
+These need to be set so that the UI can be rendered that may require this state, and also for conditional server components. variables.Test is an example of a conditional server component. If you have content that you may want to show to people that are logged in, then you can create a conditional server component. It runs on the server and returns a new component. This is different then simply returning content based off a condition, because a user could inspect and find information that you might not want them to find. Afterwards the component will be called and return the new component ready for the build and client. Now the UI can be built.
+
+```
+let ui = [
+    `<h1>Easy state management across components</h1>`,
+    `<button onclick="variables.cookies++;render();">Component found in current page</button>`,
+    Button(variables),
+    Cookies(variables.cookies),
+    `<h1>Create conditional server components</h1>`,
+    variables.Test(),
+    `<input id="asdf"/><button onclick="variables.todos.push(asdf.value);render()">State management witih arrays with simple .push() syntax</button><button onclick="variables.todos.pop();render()">State management witih arrays with simple .pop() syntax</button>`,
+    ...variables.todos.map((a) => {
+      return `<h1>${a}</h1>`;
+    }),
+  ];
+```
