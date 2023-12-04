@@ -79,7 +79,7 @@ const page = {
   state: state,
   init: init,
   components: [Cookies, Button],
-  middleware: [auth],
+  middleware: [],
   sideEffects: [],
   title: "App created with Subatomic.js",
   description:
