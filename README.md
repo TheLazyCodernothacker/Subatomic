@@ -62,7 +62,12 @@ The route will fetch the code for /pages/page.mjs, which is always used for the 
 
 ### The Build
 
-Subatomic.js uses pre-rendering and sends over the initial ui. This is why the build is returned from the render function. The code executed in the build is different from the rendering on the client, but still returns an initial ui for bots and crawlers. The first difference is this: 
+Subatomic.js uses pre-rendering and sends over the initial ui. This is why the build is returned from the render function:
+```
+function build(render, state, init, components, title, description, data) {
+  let [ui, variables] = render(true, data); //render() is being called, but with the first parameter as true to tell it to build
+```
+The code executed in the build is different from the rendering on the client, but still returns an initial ui for bots and crawlers. The first difference is this: 
 
 ```
 if (build) {
@@ -137,3 +142,8 @@ This won't run on the build and will only happen on the client. Don't worry, the
 <input id="asdf" onchange="variables.input = '${asdf.value}'"/>
 ```
 And this is an easy way to get code injected from the user and should not be done (both injecting code and this practice.)
+Now that the ui and variables and returned, let go back to index.js to finish the process. We 
+```
+function build(render, state, init, components, title, description, data) {
+  let [ui, variables] = render(true, data);
+```
