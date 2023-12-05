@@ -9,7 +9,7 @@
   },
   "name": "subatomicjs",
   "description": "Subatomic JS is the minimalist Full-stack framework with SSR and subatomic bundles.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",

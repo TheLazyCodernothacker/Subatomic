@@ -71,14 +71,13 @@ function test() {
       });
       app.get(`/${getRoutes.join("/")}`, (req, res) => {
         let parameters = {};
-        let route = req.path.split("/");
-        route.shift();
-        route.forEach((a, i) => {
+        console.log(getRoutes)
+        getRoutes.forEach((a, i) => {
           if (a[0] === ":") {
-            parameters[a.replace(":", "")] = route[i];
+            parameters[a.replace(":", "")] = req.params[a.replace(":", "")];
           }
         });
-
+        console.log(parameters)
         import(`./pages/${routes.join("/")}/page.mjs`).then((a) => {
           handleImport(req, res, a, parameters);
         });
