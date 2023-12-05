@@ -1,8 +1,93 @@
 const express = require("express");
 const app = express();
 const port = 3000;
+const fs = require("fs");
+const path = require("path");
 
 app.use(express.static("public"));
+
+function handleImport(req, res, a, parameters) {
+  try {
+    a.default.middleware.forEach((a) => {
+      if (!a(req, res)) {
+        res.send("Unauthorized");
+      }
+    });
+    let data = {};
+    data.parameters = parameters;
+    res.send(
+      build(
+        a.default.render,
+        a.default.state,
+        a.default.init,
+        a.default.components,
+        a.default.functions,
+        a.default.title,
+        a.default.description,
+        data
+      )
+    );
+  } catch (e) {
+    console.log(e);
+    res.send("Something went wrong :(");
+  }
+}
+
+function test() {
+  const directoryPath = "pages";
+  let pages = [];
+  function readDirectory(directory) {
+    fs.readdirSync(directory).forEach((file) => {
+      const filePath = path.join(directory, file);
+      if (fs.statSync(filePath).isDirectory()) {
+        readDirectory(filePath);
+      } else if (filePath.includes("page.mjs")) {
+        pages.push(filePath);
+      }
+    });
+  }
+
+  readDirectory(directoryPath);
+  let setPages = new Set(pages);
+  if (setPages.size !== pages.length) {
+    console.log("Duplicate pages found");
+    process.exit(1);
+  }
+  pages.forEach((page) => {
+    let routes = page.split("/");
+    routes.pop();
+    routes.shift();
+    let setRoutes = new Set(routes);
+    if (setRoutes.size !== routes.length) {
+      console.log("Duplicate routes found");
+      process.exit(1);
+    }
+    if (routes.length !== 0) {
+      let getRoutes = routes.map((route) => {
+        if (route[0] === "[" && route[route.length - 1] === "]") {
+          route = route.replace("[", ":").replace("]", "");
+        }
+        return route;
+      });
+      app.get(`/${getRoutes.join("/")}`, (req, res) => {
+        let parameters = {};
+        let route = req.path.split("/");
+        route.shift();
+        route.forEach((a, i) => {
+          if (a[0] === ":") {
+            parameters[a.replace(":", "")] = route[i];
+          }
+        });
+
+        import(`./pages/${routes.join("/")}/page.mjs`).then((a) => {
+          handleImport(req, res, a, parameters);
+        });
+      });
+    }
+  });
+}
+
+test();
 
 app.get("/robots.txt", (req, res) => {
   const robotsContent = `
@@ -16,24 +101,7 @@ app.get("/robots.txt", (req, res) => {
 
 app.get("/", (req, res) => {
   import("./pages/page.mjs").then((a) => {
-    a.default.middleware.forEach((a) => {
-      if (!a(req, res)) {
-        res.send("Unauthorized");
-      }
-    });
-    let data = {};
-    res.send(
-      build(
-        a.default.render,
-        a.default.state,
-        a.default.init,
-        a.default.components,
-        a.default.functions,
-        a.default.title,
-        a.default.description,
-        data
-      )
-    );
+    handleImport(req, res, a);
   });
 });
 
@@ -102,33 +170,6 @@ let effectVariables = {};
   return content;
 }
 
-app.get("/*", (req, res) => {
-  const params = req.params[0].split("/");
-  console.log(params);
-  import(
-    `./pages/${`./pages/${params
-      .map((p) => {
-        return `${p}/`;
-      })
-      .join("")}page.mjs`}page.mjs`
-  )
-    .then((a) => {
-      a.default.middleware.forEach((a) => {
-        if (!a(req, res)) {
-          res.send("Unauthorized");
-        }
-      });
-      res.send(
-        build(
-          a.default.render,
-          a.default.state,
-          a.default.init,
-          a.default.components
-        )
-      );
-    })
-    .catch((e) => {
-      console.log(e);
-      res.send("Page not found");
-    });
+app.get("*", (req, res) => {
+  res.status(404).send("404 Page not found!");
 });
