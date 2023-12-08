@@ -40,5 +40,10 @@
     "@": "./"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "parcel": "^2.10.3",
+    "tailwindcss": "^3.3.6",
+    "webpack": "^5.89.0"
+  }
 }

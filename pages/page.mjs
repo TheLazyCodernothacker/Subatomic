@@ -9,7 +9,7 @@ function render(build, data) {
     variables.Test = function (req) {
       if (req) {
         variables.Test = function () {
-          return `<h1>You are logged in!</h1>`;
+          return `<h1 class="text-3xl font-bold underline">You are logged in!</h1>`;
         };
       } else {
         variables.Test = function () {
