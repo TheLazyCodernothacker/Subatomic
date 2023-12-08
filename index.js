@@ -130,11 +130,7 @@ function build(
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<<<<<<< HEAD
   <link rel="stylesheet" href="/css/pico.min.css">
-=======
-  <link rel="stylesheet" href="style.css">
->>>>>>> a47cb0a30e507dc7ed6f1e13e6b9436bb3c12034
   <title>${title}</title>
   <meta name="description" content="${description}">
 
