@@ -17,7 +17,7 @@
   "scripts": {
     "start": "nodemon index.js",
     "test": "exit 0",
-    "build:css": "postcss styles.css -o output.css"
+    "build:css": "postcss styles.css -o ${OUTPUT_FILE:-output.css}"
   },
   "keywords": [
     "framework",

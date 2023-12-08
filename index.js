@@ -4,10 +4,11 @@ const app = express();
 const port = 3000;
 const fs = require("fs");
 const path = require("path");
+const postcss = require("postcss");
 
 app.use(express.static("public"));
 
-function handleImport(req, res, a, parameters) {
+function handleImport(req, res, a, parameters, csspath) {
   try {
     a.default.middleware.forEach((a) => {
       if (!a(req, res)) {
@@ -16,6 +17,7 @@ function handleImport(req, res, a, parameters) {
     });
     let data = {};
     data.parameters = parameters;
+    data.csspath = csspath;
     res.send(
       build(
         a.default.render,
@@ -55,6 +57,7 @@ function test() {
     process.exit(1);
   }
   pages.forEach((page) => {
+    console.log(page);
     let routes = page.split("/");
     routes.pop();
     routes.shift();
@@ -70,17 +73,37 @@ function test() {
         }
         return route;
       });
+      import(`./pages/${routes.join("/")}/page.mjs`).then((a) => {
+        // Build the CSS and write to a file in styles
+        postcss([require("tailwindcss"), require("autoprefixer")])
+          .process(fs.readFileSync(`./src/style.css`, "utf8"), {
+            from: `./src/style.css`,
+            to: `./public/${routes.join("/")}/output.css`,
+          })
+          .then((result) => {
+            fs.mkdirSync(`./public/${routes.join("/")}`, { recursive: true });
+            fs.writeFileSync(
+              `./public/${routes.join("/")}/output.css`,
+              result.css
+            );
+            if (result.map)
+              fs.writeFileSync(
+                `./public/${routes.join("/")}/output.css.map`,
+                result.map
+              );
+          });
+      });
       app.get(`/${getRoutes.join("/")}`, (req, res) => {
         let parameters = {};
-        console.log(getRoutes);
         getRoutes.forEach((a, i) => {
           if (a[0] === ":") {
             parameters[a.replace(":", "")] = req.params[a.replace(":", "")];
           }
         });
+        let csspath = "/" + routes.join("/") + "/output.css";
         console.log(parameters);
         import(`./pages/${routes.join("/")}/page.mjs`).then((a) => {
-          handleImport(req, res, a, parameters);
+          handleImport(req, res, a, parameters, csspath);
         });
       });
     }
@@ -101,7 +124,7 @@ app.get("/robots.txt", (req, res) => {
 
 app.get("/", (req, res) => {
   import("./pages/page.mjs").then((a) => {
-    handleImport(req, res, a);
+    handleImport(req, res, a, {}, "/output.css");
   });
 });
 
@@ -130,7 +153,7 @@ function build(
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/css/pico.min.css">
+  <link rel="stylesheet" href="${data.csspath}">
   <title>${title}</title>
   <meta name="description" content="${description}">
 
