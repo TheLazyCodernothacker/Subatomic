@@ -7,7 +7,7 @@ const path = require("path");
 
 app.use(express.static("public"));
 
-function handleImport(req, res, a, parameters, csspath) {
+function handleImport(req, res, a, parameters) {
   try {
     a.default.middleware.forEach((a) => {
       if (!a(req, res)) {
@@ -16,7 +16,6 @@ function handleImport(req, res, a, parameters, csspath) {
     });
     let data = {};
     data.parameters = parameters;
-    data.csspath = csspath;
     res.send(
       build(
         a.default.render,
@@ -80,10 +79,9 @@ function test() {
             parameters[a.replace(":", "")] = req.params[a.replace(":", "")];
           }
         });
-        let csspath = "/" + routes.join("/") + "/output.css";
         console.log(parameters);
         import(`./pages/${routes.join("/")}/page.mjs`).then((a) => {
-          handleImport(req, res, a, parameters, csspath);
+          handleImport(req, res, a, parameters);
         });
       });
     }
