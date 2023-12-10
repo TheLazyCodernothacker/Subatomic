@@ -4,7 +4,6 @@ const app = express();
 const port = 3000;
 const fs = require("fs");
 const path = require("path");
-const postcss = require("postcss");
 
 app.use(express.static("public"));
 
@@ -73,26 +72,7 @@ function test() {
         }
         return route;
       });
-      import(`./pages/${routes.join("/")}/page.mjs`).then((a) => {
-        // Build the CSS and write to a file in styles
-        postcss([require("tailwindcss"), require("autoprefixer")])
-          .process(fs.readFileSync(`./src/style.css`, "utf8"), {
-            from: `./src/style.css`,
-            to: `./public/${routes.join("/")}/output.css`,
-          })
-          .then((result) => {
-            fs.mkdirSync(`./public/${routes.join("/")}`, { recursive: true });
-            fs.writeFileSync(
-              `./public/${routes.join("/")}/output.css`,
-              result.css
-            );
-            if (result.map)
-              fs.writeFileSync(
-                `./public/${routes.join("/")}/output.css.map`,
-                result.map
-              );
-          });
-      });
+
       app.get(`/${getRoutes.join("/")}`, (req, res) => {
         let parameters = {};
         getRoutes.forEach((a, i) => {
@@ -153,7 +133,7 @@ function build(
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="${data.csspath}">
+  <link rel="stylesheet" href="/output.css">
   <title>${title}</title>
   <meta name="description" content="${description}">
 

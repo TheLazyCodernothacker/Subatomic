@@ -15,9 +15,9 @@
   "version": "0.0.3",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
-    "test": "exit 0",
-    "build:css": "postcss styles.css -o ${OUTPUT_FILE:-output.css}"
+    "watch:css": "npx tailwindcss -i ./input.css -o ./public/output.css --watch",
+    "start:server": "nodemon index.js",
+    "start": "npm-run-all --parallel watch:css start:server"
   },
   "keywords": [
     "framework",
@@ -45,6 +45,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "npm-run-all": "^4.1.5",
     "parcel": "^2.10.3",
     "postcss-cli": "^11.0.0",
     "tailwindcss": "^3.3.6",
