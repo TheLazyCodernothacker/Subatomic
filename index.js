@@ -55,6 +55,7 @@ function test() {
     process.exit(1);
   }
   pages.forEach((page) => {
+    console.log(page);
     let routes = page.split("/");
     routes.pop();
     routes.shift();
@@ -70,9 +71,10 @@ function test() {
         }
         return route;
       });
+
       app.get(`/${getRoutes.join("/")}`, (req, res) => {
         let parameters = {};
-        console.log(getRoutes);
+        console.log(getRoutes)
         getRoutes.forEach((a, i) => {
           if (a[0] === ":") {
             parameters[a.replace(":", "")] = req.params[a.replace(":", "")];
@@ -101,7 +103,7 @@ app.get("/robots.txt", (req, res) => {
 
 app.get("/", (req, res) => {
   import("./pages/page.mjs").then((a) => {
-    handleImport(req, res, a);
+    handleImport(req, res, a, {}, "/output.css");
   });
 });
 
@@ -130,7 +132,7 @@ function build(
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/css/pico.min.css" type="text/css">
+  <link rel="stylesheet" href="css/pico.min.css">
   <title>${title}</title>
   <meta name="description" content="${description}">
 

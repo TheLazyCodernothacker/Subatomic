@@ -1,11 +1,13 @@
 {
   "dependencies": {
+    "autoprefixer": "^10.4.16",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "module-alias": "^2.2.3",
     "nodemon": "^3.0.2",
     "passport": "^0.7.0",
     "passport-github": "^1.1.0",
+    "postcss": "^8.4.32",
     "purgecss": "^5.0.0"
   },
   "name": "subatomicjs",
@@ -13,8 +15,9 @@
   "version": "0.0.3",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
-    "test": "exit 0"
+    "watch:css": "npx tailwindcss -i ./input.css -o ./public/output.css --watch",
+    "start:server": "nodemon index.js",
+    "start": "npm-run-all --parallel watch:css start:server"
   },
   "keywords": [
     "framework",
@@ -40,5 +43,12 @@
     "@": "./"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "parcel": "^2.10.3",
+    "postcss-cli": "^11.0.0",
+    "tailwindcss": "^3.3.6",
+    "webpack": "^5.89.0"
+  }
 }

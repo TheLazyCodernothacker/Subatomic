@@ -19,7 +19,7 @@ function render(build, data) {
     variables.Test(data.req);
   }
   let ui = [
-    `<h1>Easy state management across components</h1>`,
+    `<h1 class="text-4xl">Easy state management across components</h1>`,
     `<button onclick="variables.cookies++;render();">Component found in current page</button>`,
     Button(variables),
     Cookies(variables.cookies),
