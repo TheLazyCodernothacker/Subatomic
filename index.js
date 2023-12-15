@@ -16,6 +16,8 @@ function handleImport(req, res, a, parameters) {
     });
     let data = {};
     data.parameters = parameters;
+    data.js = a.default.js;
+    data.css = a.default.css;
     res.send(
       build(
         a.default.render,
@@ -133,6 +135,16 @@ function build(
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/output.css">
+  ${data.css
+    .map((a) => {
+      return `<link rel="stylesheet" href="${a}">`;
+    })
+    .join("")}
+   ${data.js
+     .map((a) => {
+       return `<script defer src="${a}"></script>`;
+     })
+     .join("")}
   <title>${title}</title>
   <meta name="description" content="${description}">
 
