@@ -1,19 +1,101 @@
+require("module-alias/register");
 const express = require("express");
 const app = express();
-const dotenv = require("dotenv");
-
-dotenv.config();
-
 const port = 3000;
+const fs = require("fs");
+const path = require("path");
+
 app.use(express.static("public"));
 
-const GitHubStrategy = require("passport-github").Strategy;
+function handleImport(req, res, a, parameters) {
+  try {
+    a.default.middleware.forEach((a) => {
+      if (!a(req, res)) {
+        res.send("Unauthorized");
+      }
+    });
+    let data = {};
+    data.parameters = parameters;
+    data.js = a.default.js;
+    data.css = a.default.css;
+    res.send(
+      build(
+        a.default.render,
+        a.default.state,
+        a.default.init,
+        a.default.components,
+        a.default.functions,
+        a.default.title,
+        a.default.description,
+        data
+      )
+    );
+  } catch (e) {
+    console.log(e);
+    res.send("Something went wrong :(");
+  }
+}
+
+function test() {
+  const directoryPath = "pages";
+  let pages = [];
+  function readDirectory(directory) {
+    fs.readdirSync(directory).forEach((file) => {
+      const filePath = path.join(directory, file);
+      if (fs.statSync(filePath).isDirectory()) {
+        readDirectory(filePath);
+      } else if (filePath.includes("page.mjs")) {
+        pages.push(filePath);
+      }
+    });
+  }
+
+  readDirectory(directoryPath);
+  let setPages = new Set(pages);
+  if (setPages.size !== pages.length) {
+    console.log("Duplicate pages found");
+    process.exit(1);
+  }
+  pages.forEach((page) => {
+    console.log(page);
+    let routes = page.split("/");
+    routes.pop();
+    routes.shift();
+    let setRoutes = new Set(routes);
+    if (setRoutes.size !== routes.length) {
+      console.log("Duplicate routes found");
+      process.exit(1);
+    }
+    if (routes.length !== 0) {
+      let getRoutes = routes.map((route) => {
+        if (route[0] === "[" && route[route.length - 1] === "]") {
+          route = route.replace("[", ":").replace("]", "");
+        }
+        return route;
+      });
+
+      app.get(`/${getRoutes.join("/")}`, (req, res) => {
+        let parameters = {};
+        console.log(getRoutes);
+        getRoutes.forEach((a, i) => {
+          if (a[0] === ":") {
+            parameters[a.replace(":", "")] = req.params[a.replace(":", "")];
+          }
+        });
+        console.log(parameters);
+        import(`./pages/${routes.join("/")}/page.mjs`).then((a) => {
+          handleImport(req, res, a, parameters);
+        });
+      });
+    }
+  });
+}
+
+test();
 
 app.get("/robots.txt", (req, res) => {
-  // Customize the robots.txt content based on your requirements
   const robotsContent = `
     User-agent: *
-    Disallow: /
     Allow: /
     `;
 
@@ -23,23 +105,7 @@ app.get("/robots.txt", (req, res) => {
 
 app.get("/", (req, res) => {
   import("./pages/page.mjs").then((a) => {
-    a.default.middleware.forEach((a) => {
-      if (!a(req, res)) {
-        res.send("Unauthorized");
-      }
-    });
-    res.send(
-      build(
-        a.default.render,
-        a.default.state,
-        a.default.init,
-        a.default.components,
-        req,
-        res,
-        a.default.title,
-        a.default.description
-      )
-    );
+    handleImport(req, res, a, {}, "/output.css");
   });
 });
 
@@ -51,21 +117,34 @@ function parseArray(arr) {
   return arr.join("");
 }
 
-function build(render, state, init, components, req, res, title, description) {
-  if (init) {
-    init();
-  }
-  if (state) {
-    state();
-  }
-  let [ui, variables] = render(true, req, res);
+function build(
+  render,
+  state,
+  init,
+  components,
+  functions,
+  title,
+  description,
+  data
+) {
+  let [ui, variables] = render(true, data);
   let content = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/pico.min.css">
+  <link rel="stylesheet" href="/output.css">
+  ${data.css
+    .map((a) => {
+      return `<link rel="stylesheet" href="${a}">`;
+    })
+    .join("")}
+   ${data.js
+     .map((a) => {
+       return `<script defer src="${a}"></script>`;
+     })
+     .join("")}
   <title>${title}</title>
   <meta name="description" content="${description}">
 
@@ -76,19 +155,6 @@ function build(render, state, init, components, req, res, title, description) {
   function parseArray(arr) {
   return arr.join("");
 }
-function useEffect(func, deps) {
-  if (typeof document !== "undefined") {
-    let run = false;
-    deps.forEach((a) => {
-      if (effectVariables[a] !== variables[a]) {
-        run = true;
-      }
-    });
-    if (run) {
-      func();
-    }
-  }
-}
       ${state.toString()}
     ${render.toString()}
     ${init.toString()}
@@ -97,7 +163,11 @@ function useEffect(func, deps) {
         return `${a.toString()}`;
       })
       .join(";")}
-  let start = false;
+      ${functions
+        .map((a) => {
+          return `${a.toString()}`;
+        })
+        .join(";")}
 let variables = {${Object.keys(variables).map((a) => {
     return `${a}: ${
       typeof variables[a] === "function"
@@ -114,33 +184,6 @@ let effectVariables = {};
   return content;
 }
 
-app.get("/*", (req, res) => {
-  const params = req.params[0].split("/");
-  console.log(params);
-  import(
-    `./pages/${`./pages/${params
-      .map((p) => {
-        return `${p}/`;
-      })
-      .join("")}page.mjs`}page.mjs`
-  )
-    .then((a) => {
-      a.default.middleware.forEach((a) => {
-        if (!a(req, res)) {
-          res.send("Unauthorized");
-        }
-      });
-      res.send(
-        build(
-          a.default.render,
-          a.default.state,
-          a.default.init,
-          a.default.components
-        )
-      );
-    })
-    .catch((e) => {
-      console.log(e);
-      res.send("Page not found");
-    });
+app.get("*", (req, res) => {
+  res.status(404).send("404 Page not found!");
 });
