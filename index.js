@@ -12,7 +12,7 @@ function convert(str) {
   return newStr;
 }
 
-compile("./pages/page.mjs", "./pages");
+compile("./pages/page.js", "./pages");
 
 function compile(page, path) {
   console.log("compiling");
@@ -88,7 +88,7 @@ function test() {
       const filePath = path.join(directory, file);
       if (fs.statSync(filePath).isDirectory()) {
         readDirectory(filePath);
-      } else if (filePath.includes("page.mjs")) {
+      } else if (filePath.includes("page.js")) {
         pages.push(filePath);
       }
     });

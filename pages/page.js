@@ -25,6 +25,9 @@ function render(build, data) {
         Easy state management across components
       </h1>
     </>,
+    <>
+      asdfasdfasdf ${variables.cookies}
+    </>,
     `<button onclick="variables.cookies++;render();">Component found in current page</button>`,
     Button(variables),
     Cookies(variables.cookies),

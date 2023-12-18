@@ -24,8 +24,11 @@ function render(build, data) {
       <h1>Easy state management across components</h1>
     `,
     `
-      <button onclick="variables.cookies++;render();">Component found in current page</button>
+      <button onclick="variables.cookies++;render();">
+        Component found in current page
+      </button>
     `,
+    `asdfljas;ldfkj`,
     Button(variables),
     Cookies(variables.cookies),
     `<h1>Create conditional server components</h1>`,
@@ -87,8 +90,8 @@ const page = {
   title: "App created with Subatomic.js",
   description:
     "Subatomic.js is a minimalistic JS framework with PSR and SSR for creating dyanmic web apps.",
-    js: [],
-    css: [],
+  js: [],
+  css: [],
 };
 
 function useEffect(func, deps) {
