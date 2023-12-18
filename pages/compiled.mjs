@@ -1,14 +1,15 @@
-import Button from "../../../../components/Button.mjs";
+import Button from "../components/Button.mjs";
 
 let variables = {};
 
 function render(build, data) {
+  console.log(variables);
   if (build) {
     state();
     variables.Test = function (req) {
       if (req) {
         variables.Test = function () {
-          return `<h1>You are logged in!</h1>`;
+          return `<h1 class="text-3xl font-bold underline">You are logged in!</h1>`;
         };
       } else {
         variables.Test = function () {
@@ -19,8 +20,11 @@ function render(build, data) {
     variables.Test(data.req);
   }
   let ui = [
-    JSON.stringify(data.parameters),
-    `<h1>Easy state management across components</h1>`,
+    `
+      <h1 class="text-4xl bg-red-400">
+        Easy state management across components
+      </h1>
+    `,
     `<button onclick="variables.cookies++;render();">Component found in current page</button>`,
     Button(variables),
     Cookies(variables.cookies),
@@ -83,6 +87,8 @@ const page = {
   title: "App created with Subatomic.js",
   description:
     "Subatomic.js is a minimalistic JS framework with PSR and SSR for creating dyanmic web apps.",
+  css: [],
+  js: [],
 };
 
 function useEffect(func, deps) {

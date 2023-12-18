@@ -1,8 +1,9 @@
-import Button from "../../../components/Button.mjs";
+import Button from "../../components/Button.mjs";
 
 let variables = {};
 
 function render(build, data) {
+  console.log(variables);
   if (build) {
     state();
     variables.Test = function (req) {
@@ -19,8 +20,12 @@ function render(build, data) {
     variables.Test(data.req);
   }
   let ui = [
-    `<h1>Easy state management across components</h1>`,
-    `<button onclick="variables.cookies++;render();">Component found in current page</button>`,
+    `
+      <h1>Easy state management across components</h1>
+    `,
+    `
+      <button onclick="variables.cookies++;render();">Component found in current page</button>
+    `,
     Button(variables),
     Cookies(variables.cookies),
     `<h1>Create conditional server components</h1>`,
@@ -82,6 +87,8 @@ const page = {
   title: "App created with Subatomic.js",
   description:
     "Subatomic.js is a minimalistic JS framework with PSR and SSR for creating dyanmic web apps.",
+    js: [],
+    css: [],
 };
 
 function useEffect(func, deps) {

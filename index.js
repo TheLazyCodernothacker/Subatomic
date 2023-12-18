@@ -7,6 +7,40 @@ const path = require("path");
 
 app.use(express.static("public"));
 
+function convert(str) {
+  newStr = str.replaceAll("<>", "`").replaceAll("</>", "`");
+  return newStr;
+}
+
+compile("./pages/page.mjs", "./pages");
+
+function compile(page, path) {
+  console.log("compiling");
+  path += "/compiled.mjs";
+  fs.readFile(page, "utf8", (err, data) => {
+    fs.readFile(path, "utf-8", (err, asdf) => {
+      if (err) {
+        console.log(err);
+        fs.writeFile(path, convert(data.toString()), (err) => {
+          if (err) {
+            console.log(err);
+          }
+        });
+      } else if (asdf.toString() !== convert(data.toString())) {
+        console.log("updating ", page);
+        fs.writeFile(path, convert(data.toString()), (err) => {
+          if (err) {
+            console.log(err);
+          }
+        });
+      } else {
+        console.log("no update needed");
+        console.log(asdf.toString(), convert(data.toString()));
+      }
+    });
+  });
+}
+
 function handleImport(req, res, a, parameters) {
   try {
     let data = {};
@@ -83,7 +117,7 @@ function test() {
         }
         return route;
       });
-
+      compile(page, `./pages/${routes.join("/")}`);
       app.get(`/${getRoutes.join("/")}`, (req, res) => {
         let parameters = {};
         console.log(getRoutes);
@@ -93,7 +127,7 @@ function test() {
           }
         });
         console.log(parameters);
-        import(`./pages/${routes.join("/")}/page.mjs`).then((a) => {
+        import(`./pages/${routes.join("/")}/compiled.mjs`).then((a) => {
           handleImport(req, res, a, parameters);
         });
       });
@@ -114,7 +148,7 @@ app.get("/robots.txt", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  import("./pages/page.mjs").then((a) => {
+  import("./pages/compiled.mjs").then((a) => {
     handleImport(req, res, a, {}, "/output.css");
   });
 });
