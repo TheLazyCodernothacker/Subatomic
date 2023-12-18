@@ -9,12 +9,22 @@ app.use(express.static("public"));
 
 function handleImport(req, res, a, parameters) {
   try {
+    let data = {};
+    let continueBuild = true;
     a.default.middleware.forEach((a) => {
-      if (!a(req, res)) {
-        res.send("Unauthorized");
+      try {
+        if (a(req, res) === "done") {
+          continueBuild = false;
+        }
+      } catch (e) {
+        console.log(e);
+        continueBuild = false;
       }
     });
-    let data = {};
+
+    if (!continueBuild) {
+      return;
+    }
     data.parameters = parameters;
     data.js = a.default.js;
     data.css = a.default.css;
