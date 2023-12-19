@@ -1,4 +1,5 @@
 require("module-alias/register");
+const { exec } = require("child_process");
 const express = require("express");
 const app = express();
 const port = 3000;
@@ -7,39 +8,17 @@ const path = require("path");
 
 app.use(express.static("public"));
 
-function convert(str) {
-  newStr = str.replaceAll("<>", "`").replaceAll("</>", "`");
-  return newStr;
-}
-
-compile("./pages/page.js", "./pages");
-
-function compile(page, path) {
-  console.log("compiling");
-  path += "/compiled.mjs";
-  fs.readFile(page, "utf8", (err, data) => {
-    fs.readFile(path, "utf-8", (err, asdf) => {
-      if (err) {
-        console.log(err);
-        fs.writeFile(path, convert(data.toString()), (err) => {
-          if (err) {
-            console.log(err);
-          }
-        });
-      } else if (asdf.toString() !== convert(data.toString())) {
-        console.log("updating ", page);
-        fs.writeFile(path, convert(data.toString()), (err) => {
-          if (err) {
-            console.log(err);
-          }
-        });
-      } else {
-        console.log("no update needed");
-        console.log(asdf.toString(), convert(data.toString()));
-      }
-    });
-  });
-}
+let Subatomic = {
+  createElement: (type, props = {}, ...children) => {
+    if (props === null) props = {};
+    return `<${type} ${Object.keys(props)
+      .map((a) => {
+        return `${a}="${props[a]}"`;
+      })
+      .join(" ")}>${children.join("")}</${type}>`;
+  },
+};
+// compile("./pages/page.js", "./pages");
 
 function handleImport(req, res, a, parameters) {
   try {
@@ -117,7 +96,7 @@ function test() {
         }
         return route;
       });
-      compile(page, `./pages/${routes.join("/")}`);
+      // compile(page, `./pages/${routes.join("/")}`);
       app.get(`/${getRoutes.join("/")}`, (req, res) => {
         let parameters = {};
         console.log(getRoutes);
@@ -127,7 +106,7 @@ function test() {
           }
         });
         console.log(parameters);
-        import(`./pages/${routes.join("/")}/compiled.mjs`).then((a) => {
+        import(`./lib/${routes.join("/")}/page.js`).then((a) => {
           handleImport(req, res, a, parameters);
         });
       });
@@ -148,7 +127,7 @@ app.get("/robots.txt", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  import("./pages/compiled.mjs").then((a) => {
+  import("./lib/page.js").then((a) => {
     handleImport(req, res, a, {}, "/output.css");
   });
 });
@@ -172,6 +151,7 @@ function build(
   data
 ) {
   let [ui, variables] = render(true, data);
+
   let content = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -196,6 +176,7 @@ function build(
 <body>
   ${parseArray(ui)}
   <script>
+  let Subatomic = ${JSON.stringify(Subatomic)};
   function parseArray(arr) {
   return arr.join("");
 }

@@ -1,6 +1,9 @@
 {
   "dependencies": {
     "autoprefixer": "^10.4.16",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.1.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "module-alias": "^2.2.3",
@@ -8,7 +11,9 @@
     "passport": "^0.7.0",
     "passport-github": "^1.1.0",
     "postcss": "^8.4.32",
-    "purgecss": "^5.0.0"
+    "purgecss": "^5.0.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
   },
   "name": "subatomicjs",
   "description": "Subatomic JS is the minimalist Full-stack framework with SSR and subatomic bundles.",
@@ -17,7 +22,8 @@
   "scripts": {
     "watch:css": "npx tailwindcss -i ./input.css -o ./public/output.css --watch",
     "start:server": "nodemon index.js",
-    "start": "npm-run-all --parallel watch:css start:server"
+    "start:babel": "babel pages --out-dir lib --watch",
+    "start": "npm-run-all --parallel watch:css start:server start:babel"
   },
   "keywords": [
     "framework",
@@ -45,6 +51,10 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@babel/cli": "^7.23.4",
+    "@babel/core": "^7.23.6",
+    "@babel/preset-env": "^7.23.6",
+    "@babel/preset-react": "^7.23.3",
     "npm-run-all": "^4.1.5",
     "parcel": "^2.10.3",
     "postcss-cli": "^11.0.0",

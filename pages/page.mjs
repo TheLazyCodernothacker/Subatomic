@@ -1,6 +1,15 @@
-import Button from "../components/Button.mjs";
-
 let variables = {};
+
+let Subatomic = {
+  createElement: (type, props = {}, ...children) => {
+    if (props === null) props = {};
+    return `<${type} ${Object.keys(props)
+      .map((a) => {
+        return `${a}="${props[a]}"`;
+      })
+      .join(" ")}>${children.join("")}</${type}>`;
+  },
+};
 
 function render(build, data) {
   console.log(variables);
@@ -20,23 +29,16 @@ function render(build, data) {
     variables.Test(data.req);
   }
   let ui = [
-    `
-      <h1 class="text-4xl bg-red-400">
-        Easy state management across components
-      </h1>
-    `,
-    `
-      asdfasdfasdf ${variables.cookies}
-    `,
-    `<button onclick="variables.cookies++;render();">Component found in current page</button>`,
-    Button(variables),
-    Cookies(variables.cookies),
-    `<h1>Create conditional server components</h1>`,
-    variables.Test(),
-    `<input id="asdf"/><button onclick="variables.todos.push(asdf.value);render()">State management witih arrays with simple .push() syntax</button><button onclick="variables.todos.pop();render()">State management witih arrays with simple .pop() syntax</button>`,
-    ...variables.todos.map((a) => {
-      return `<h1>${a}</h1>`;
-    }),
+    <div>
+      <h1 class="text-4xl bg-red-400">Test</h1>
+      <button
+        onClick={() => {
+          variables.cookies++;
+        }}
+      >
+        pres me
+      </button>
+    </div>,
   ];
   if (typeof document !== "undefined") {
     useEffect(() => {
@@ -67,6 +69,7 @@ function state() {
   variables.cookies = 0;
   variables.todos = [];
   variables.input = "";
+  variables.tset = "test";
 }
 
 async function init() {
@@ -84,7 +87,7 @@ const page = {
   render: render,
   state: state,
   init: init,
-  components: [Cookies, Button],
+  components: [Cookies],
   middleware: [],
   functions: [useEffect],
   title: "App created with Subatomic.js",
