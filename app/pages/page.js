@@ -3,23 +3,17 @@ import React from "../../createElement.js";
 
 let variables = {};
 
+function handleChange(event) {
+  event.preventDefault();
+  console.log("change");
+  variables.input = event.target.value;
+}
+
 function render(build, data) {
-  console.log(variables);
   if (build) {
     state();
-    variables.Test = function (req) {
-      if (req) {
-        variables.Test = function () {
-          return `<h1 class="text-3xl font-bold underline">You are logged in!</h1>`;
-        };
-      } else {
-        variables.Test = function () {
-          return `<h1>You are not logged in!</h1>`;
-        };
-      }
-    };
-    variables.Test(data.req);
   }
+
   let ui = (
     <div>
       <h1 class="text-4xl bg-red-400">Test</h1>
@@ -33,13 +27,31 @@ function render(build, data) {
       </button>
 
       <h1>You have {variables.cookies} cookies</h1>
+      <input
+        type="text"
+        value={variables.input}
+        oninput={() => {
+          handleChange(event);
+        }}
+      />
+      <button
+        onclick={() => {
+          variables.todos.push(variables.input);
+
+          render();
+        }}
+      >
+        Add todo
+      </button>
+      {variables.todos.map((a) => {
+        return <h1>{a}</h1>;
+      })}
     </div>
   );
   if (typeof document !== "undefined") {
     useEffect(() => {
       console.log("use effect to run side effects");
     }, ["cookies"]);
-    console.log("parsing");
     document.body.innerHTML = parseArray(ui);
     Object.keys(variables).forEach((a) => {
       effectVariables[a] = variables[a];
@@ -58,19 +70,13 @@ function Cookies() {
 
 function state() {
   variables.cookies = 0;
-  variables.todos = [];
+  variables.todos = [1, 2, 3, 4, 5];
   variables.input = "";
   variables.tset = "test";
 }
 
 async function init() {
   try {
-    console.log("Run code after first render with init");
-    const test = await fetch("https://jsonplaceholder.typicode.com/todos/1");
-    const json = await test.json();
-    console.log(json);
-    variables.todos.push(json.title);
-    render();
   } catch (e) {}
 }
 
@@ -80,7 +86,7 @@ const page = {
   init: init,
   components: [Cookies],
   middleware: [],
-  functions: [useEffect],
+  functions: [useEffect, handleChange],
   title: "App created with Subatomic.js",
   description:
     "Subatomic.js is a minimalistic JS framework with PSR and SSR for creating dyanmic web apps.",

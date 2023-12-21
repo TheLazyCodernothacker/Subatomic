@@ -9,16 +9,15 @@ let React = {
     let returnval = `<${type} ${Object.keys(props)
       .map((a) => {
         if (typeof props[a] === "function") {
-          console.log("function");
           let func = getFunctionBody(props[a].toString());
           let str = func.toString();
           str = str.replaceAll('"', "&quot;");
-          console.log(str);
           return `${a}="${str}"`;
         }
         return `${a}="${props[a]}"`;
       })
-      .join(" ")}>${children
+      .join(" ")}>${[]
+      .concat(...children)
       .map((a) => {
         return typeof a === "object" ? a[0] : a;
       })
