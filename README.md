@@ -116,7 +116,6 @@ We'll get back to what this code does exactly, but now we've declared the UI wit
 
 ```js
 if (build) {
-    console.log("returning", variables);
     return [ui, variables];
   }
 ```

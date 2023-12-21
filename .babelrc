@@ -1,11 +1,3 @@
 {
-  "presets": [
-    [
-      "@babel/preset-env",
-      {
-        "modules": "commonjs"
-      }
-    ]
-  ],
-  "plugins": ["./custom-jsx-plugin", "./jsx-syntax-parser"]
+  "presets": ["@babel/preset-react"]
 }

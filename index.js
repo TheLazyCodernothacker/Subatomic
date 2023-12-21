@@ -5,26 +5,18 @@ const app = express();
 const port = 3000;
 const fs = require("fs");
 const path = require("path");
+const React = require("./createElement.js");
 
 app.use(express.static("public"));
-
-let Subatomic = {
-  createElement: (type, props = {}, ...children) => {
-    if (props === null) props = {};
-    return `<${type} ${Object.keys(props)
-      .map((a) => {
-        return `${a}="${props[a]}"`;
-      })
-      .join(" ")}>${children.join("")}</${type}>`;
-  },
-};
 // compile("./pages/page.js", "./pages");
 
 function handleImport(req, res, a, parameters) {
   try {
     let data = {};
+    let defaultData = a.default;
     let continueBuild = true;
-    a.default.middleware.forEach((a) => {
+    console.log(defaultData.middleware);
+    defaultData.middleware.forEach((a) => {
       try {
         if (a(req, res) === "done") {
           continueBuild = false;
@@ -39,17 +31,17 @@ function handleImport(req, res, a, parameters) {
       return;
     }
     data.parameters = parameters;
-    data.js = a.default.js;
-    data.css = a.default.css;
+    data.js = defaultData.js;
+    data.css = defaultData.css;
     res.send(
       build(
-        a.default.render,
-        a.default.state,
-        a.default.init,
-        a.default.components,
-        a.default.functions,
-        a.default.title,
-        a.default.description,
+        defaultData.render,
+        defaultData.state,
+        defaultData.init,
+        defaultData.components,
+        defaultData.functions,
+        defaultData.title,
+        defaultData.description,
         data
       )
     );
@@ -60,7 +52,7 @@ function handleImport(req, res, a, parameters) {
 }
 
 function test() {
-  const directoryPath = "pages";
+  const directoryPath = "app/pages";
   let pages = [];
   function readDirectory(directory) {
     fs.readdirSync(directory).forEach((file) => {
@@ -106,7 +98,7 @@ function test() {
           }
         });
         console.log(parameters);
-        import(`./lib/${routes.join("/")}/page.js`).then((a) => {
+        import(`./lib/${routes.join("/")}/page.mjs`).then((a) => {
           handleImport(req, res, a, parameters);
         });
       });
@@ -127,7 +119,7 @@ app.get("/robots.txt", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  import("./lib/page.js").then((a) => {
+  import("./lib/pages/page.mjs").then((a) => {
     handleImport(req, res, a, {}, "/output.css");
   });
 });
@@ -136,8 +128,8 @@ app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
 
-function parseArray(arr) {
-  return arr.join("");
+function parseArray(root, build) {
+  return root;
 }
 
 function build(
@@ -150,7 +142,7 @@ function build(
   description,
   data
 ) {
-  let [ui, variables] = render(true, data);
+  let [ui, variables] = render(true, data, React);
 
   let content = `<!DOCTYPE html>
 <html lang="en">
@@ -174,12 +166,11 @@ function build(
 
 </head>
 <body>
-  ${parseArray(ui)}
+  ${parseArray(ui, true)}
   <script>
-  let Subatomic = ${JSON.stringify(Subatomic)};
-  function parseArray(arr) {
-  return arr.join("");
-}
+  React = {};
+  React.createElement = ${React.createElement.toString()};
+  ${parseArray.toString()}
       ${state.toString()}
     ${render.toString()}
     ${init.toString()}

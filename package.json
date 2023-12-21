@@ -22,7 +22,7 @@
   "scripts": {
     "watch:css": "npx tailwindcss -i ./input.css -o ./public/output.css --watch",
     "start:server": "nodemon index.js",
-    "start:babel": "babel pages --out-dir lib --watch",
+    "start:babel": "babel app --out-dir lib --out-file-extension .mjs --watch",
     "start": "npm-run-all --parallel watch:css start:server start:babel"
   },
   "keywords": [
