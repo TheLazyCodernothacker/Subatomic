@@ -16,6 +16,8 @@ function handleChange(event) {
 function render(build, data) {
   // If the build argument is true, call the state function to initialize the variables
   if (build) {
+    variables = { ...variables, ...data.props };
+    variables.jsLoaded = false;
     state();
   }
 
