@@ -14,7 +14,13 @@ let React = {
 
     // If props is null, set it to an empty object
     if (props === null) props = {};
-
+    try {
+      if (typeof type === "function") {
+        return type(props);
+      }
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
     // Generate the HTML string for the element
     let returnval = `<${type} ${Object.keys(props)
       .map((a) => {
