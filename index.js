@@ -83,7 +83,12 @@ function initPages() {
       const filePath = path.join(directory, file);
       if (fs.statSync(filePath).isDirectory()) {
         readDirectory(filePath);
-      } else if (filePath.includes("page.js")) {
+      } else if (
+        filePath.includes("page.js") ||
+        filePath.includes("page.tsx") ||
+        filePath.includes("page.ts") ||
+        filePath.includes("page.jsx")
+      ) {
         pages.push(filePath);
       }
     });
