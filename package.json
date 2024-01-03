@@ -7,7 +7,6 @@
     "dotenv": "^16.3.1",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
-    "module-alias": "^2.2.3",
     "nodemon": "^3.0.2",
     "passport": "^0.7.0",
     "passport-github": "^1.1.0",
@@ -15,6 +14,9 @@
     "purgecss": "^5.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
+  },
+  "bin": {
+    "newpage": "./bin/newpage.js"
   },
   "name": "subatomicjs",
   "description": "Subatomic JS is the minimalist Full-stack framework with SSR and subatomic bundles.",
@@ -46,16 +48,14 @@
     "rendering",
     "render"
   ],
-  "_moduleAliases": {
-    "@": "./"
-  },
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.23.4",
-    "@babel/core": "^7.23.6",
-    "@babel/preset-env": "^7.23.6",
+    "@babel/core": "^7.23.7",
+    "@babel/preset-env": "^7.23.7",
     "@babel/preset-react": "^7.23.3",
+    "babel-plugin-module-resolver": "^5.0.0",
     "npm-run-all": "^4.1.5",
     "parcel": "^2.10.3",
     "postcss-cli": "^11.0.0",
