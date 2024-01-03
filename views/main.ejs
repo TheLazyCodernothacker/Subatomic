@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/output.css" />
+    <% css.forEach(function(a) { %>
+    <link rel="stylesheet" href="<%= a %>" />
+    <% }); %> <% js.forEach(function(a) { %>
+    <script defer src="<%= a %>"></script>
+    <% }); %>
+    <title><%= title %></title>
+    <meta name="description" content="<%= description %>" />
+  </head>
+  <body>
+    <%- finalUI %>
+    <script>
+            React = {};
+            React.createElement = <%- createElement.toString() %>;
+            <%= parseArray.toString() %>
+            <%- state.toString() %>
+            <%- render.toString() %>
+            <%- init.toString() %>
+            <% components.forEach(function(a) { %>
+              <%- a.toString() %>;
+            <% }); %>
+            <% functions.forEach(function(a) { %>
+              <%- a.toString() %>;
+            <% }); %>
+            let variables = {<% Object.keys(variables).forEach(function(a, index, array) { %>
+        "<%- a %>": <%- typeof variables[a] === "function" ? variables[a].toString() : JSON.stringify(variables[a]) %><%- index !== array.length - 1 ? ',' : '' %>
+      <% }); %>};
+            let effectVariables = {};
+            render();
+            init();
+    </script>
+  </body>
+</html>

@@ -25,6 +25,7 @@ function render(build, data) {
   let ui = (
     <div>
       <h1 class="text-4xl bg-red-400">Test</h1>
+      <h1>{JSON.stringify(variables.json)}</h1>
       <button
         onclick={() => {
           // Increase the number of cookies and re-render the UI when the button is clicked
@@ -100,13 +101,19 @@ async function init() {
   } catch (e) {}
 }
 
+async function asdf(req, res, variables) {
+  const data = await fetch("https://jsonplaceholder.typicode.com/todos/1");
+  const json = await data.json();
+  variables.json = json;
+}
+
 // Define the page object with the render function, state function, init function, and other properties
 const page = {
   render: render,
   state: state,
   init: init,
   components: [Cookies],
-  middleware: [],
+  middleware: [asdf],
   functions: [useEffect, handleChange],
   title: "App created with Subatomic.js",
   description:
