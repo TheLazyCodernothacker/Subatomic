@@ -3,16 +3,18 @@ require("module-alias/register");
 const { exec } = require("child_process");
 const express = require("express");
 const app = express();
-const port = 3000;
+const port = 3001;
 const fs = require("fs");
 const path = require("path");
 const React = require("./createElement.js");
+const ejs = require("ejs");
+app.set("view engine", "ejs");
 
 // Serve static files from the 'public' directory
 app.use(express.static("public"));
 
 // Function to handle the import of a page
-function handleImport(req, res, a, parameters) {
+async function handleImport(req, res, a, parameters) {
   try {
     // Initialize data object and get default data from imported module
     let data = {};
@@ -20,17 +22,27 @@ function handleImport(req, res, a, parameters) {
     let continueBuild = true;
 
     // Run all middleware functions
-    defaultData.middleware.forEach((a) => {
-      try {
-        // If middleware function returns 'done', stop the build
-        if (a(req, res) === "done") {
+    var variables = {};
+    async function runMiddleware() {
+      for (const a of defaultData.middleware) {
+        try {
+          // Wait for the middleware function to complete before moving on
+          const newVariables = await a(req, res, variables);
+          Object.assign(variables, newVariables);
+
+          // If middleware function returns 'done', stop the build
+          if (newVariables === "done") {
+            continueBuild = false;
+            break;
+          }
+        } catch (e) {
+          console.log(e);
           continueBuild = false;
+          break;
         }
-      } catch (e) {
-        console.log(e);
-        continueBuild = false;
       }
-    });
+    }
+    await runMiddleware();
 
     // If build was stopped, return without sending a response
     if (!continueBuild) {
@@ -38,22 +50,22 @@ function handleImport(req, res, a, parameters) {
     }
 
     // Add parameters and other data to the data object
+    data.props = variables;
     data.parameters = parameters;
     data.js = defaultData.js;
     data.css = defaultData.css;
+    data.res = res;
 
     // Send the built page to the client
-    res.send(
-      build(
-        defaultData.render,
-        defaultData.state,
-        defaultData.init,
-        defaultData.components,
-        defaultData.functions,
-        defaultData.title,
-        defaultData.description,
-        data
-      )
+    build(
+      defaultData.render,
+      defaultData.state,
+      defaultData.init,
+      defaultData.components,
+      defaultData.functions,
+      defaultData.title,
+      defaultData.description,
+      data
     );
   } catch (e) {
     console.log(e);
@@ -90,11 +102,12 @@ function initPages() {
 
   // For each page, set up the routes
   pages.forEach((page) => {
-    console.log(page);
-    let routes = page.split("/");
+    let routes = page.split(path.sep);
     routes.pop();
+    console.log(routes);
     routes.shift();
-
+    routes.shift();
+    console.log(routes);
     // Check for duplicate routes
     let setRoutes = new Set(routes);
     if (setRoutes.size !== routes.length) {
@@ -103,6 +116,7 @@ function initPages() {
     }
 
     // If there are routes, set up the route for the page
+    console.log(routes);
     if (routes.length !== 0) {
       let getRoutes = routes.map((route) => {
         if (route[0] === "[" && route[route.length - 1] === "]") {
@@ -110,7 +124,7 @@ function initPages() {
         }
         return route;
       });
-
+      console.log(getRoutes);
       app.get(`/${getRoutes.join("/")}`, (req, res) => {
         let parameters = {};
         console.log(getRoutes);
@@ -120,7 +134,7 @@ function initPages() {
           }
         });
         console.log(parameters);
-        import(`./lib/${routes.join("/")}/page.mjs`).then((a) => {
+        import(`./lib/pages/${routes.join("/")}/page.mjs`).then((a) => {
           handleImport(req, res, a, parameters);
         });
       });
@@ -172,71 +186,25 @@ function build(
 ) {
   // Render the page and get the variables
   let [ui, variables] = render(true, data, React);
-
+  let newData = {
+    variables: variables,
+    render: render,
+    state: state,
+    init: init,
+    components: components,
+    functions: functions,
+    title: title,
+    components: components,
+    description: description,
+    js: data.js,
+    css: data.css,
+    ui: ui,
+    createElement: React.createElement,
+    finalUI: parseArray(ui, true),
+    parseArray: parseArray,
+  };
+  data.res.render("main", newData);
   // Build the HTML content
-  let content = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/output.css">
-  ${data.css
-    .map((a) => {
-      return `<link rel="stylesheet" href="${a}">`;
-    })
-    .join("")}
-   ${data.js
-     .map((a) => {
-       return `<script defer src="${a}"></script>`;
-     })
-     .join("")}
-  <title>${title}</title>
-  <meta name="description" content="${description}">
-
-</head>
-<body>
-  ${parseArray(ui, true)}
-  <script>
-  React = {};
-  React.createElement = ${React.createElement.toString()};
-  ${parseArray.toString()}
-      ${state.toString()}
-    ${render.toString()}
-    ${init.toString()}
-    ${components
-      .map((a) => {
-        return `${a.toString()}`;
-      })
-      // Join all function definitions into a single string separated by semicolons
-      .join(";")}
-  // Map over the functions array, convert each function to a string, and join them into a single string separated by semicolons
-  ${functions
-    .map((a) => {
-      return `${a.toString()}`;
-    })
-    .join(";")}
-  // Initialize the variables object with the current values of the variables
-  let variables = {${Object.keys(variables).map((a) => {
-    // If the variable is a function, convert it to a string
-    // If the variable is not a function, convert it to a JSON string
-    return `${a}: ${
-      typeof variables[a] === "function"
-        ? variables[a].toString()
-        : JSON.stringify(variables[a])
-    }`;
-  })}};
-  // Initialize an empty effectVariables object
-  let effectVariables = {};
-  // Call the render function
-  render();
-  // Call the init function
-  init();
-</script>
-</body>
-</html>`;
-  // Return the HTML content
-  return content;
 }
 
 // Set up a catch-all route for 404 errors
