@@ -1,6 +1,7 @@
 // Import necessary modules
 import React from "@/createElement.js";
 import Button from "@/lib/components/Button.mjs";
+import useEffect from "@/useEffect.js";
 // Initialize an empty variables object
 let variables = {};
 
@@ -122,22 +123,6 @@ const page = {
 };
 
 // Define a useEffect function
-function useEffect(func, deps) {
-  // If the document object is defined (i.e., if this code is running in a browser environment)
-  if (typeof document !== "undefined") {
-    let run = false;
-    // Check if any of the dependencies have changed
-    deps.forEach((a) => {
-      if (effectVariables[a] !== variables[a]) {
-        run = true;
-      }
-    });
-    // If any of the dependencies have changed, call the function
-    if (run) {
-      func();
-    }
-  }
-}
 
 // Export the page object
 export default page;
