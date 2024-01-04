@@ -1,6 +1,6 @@
 // Import necessary modules
 import React from "@/createElement.js";
-
+import Button from "@/lib/components/Button.mjs";
 // Initialize an empty variables object
 let variables = {};
 
@@ -33,9 +33,9 @@ function render(build, data) {
           render();
         }}
       >
-        press me
+        press me {variables.cookies}
       </button>
-
+      <Button variables={variables} />
       <h1>You have {variables.cookies} cookies</h1>
       <input
         type="text"
@@ -111,7 +111,7 @@ const page = {
   render: render,
   state: state,
   init: init,
-  components: [Cookies],
+  components: [Cookies, Button],
   middleware: [asdf],
   functions: [useEffect, handleChange],
   title: "App created with Subatomic.js",
