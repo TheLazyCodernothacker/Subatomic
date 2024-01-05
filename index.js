@@ -6,10 +6,13 @@ const port = 3001;
 const fs = require("fs");
 const path = require("path");
 const React = require("./createElement.js");
+const minify = require("html-minifier").minify;
+const compression = require("compression");
 
 // Serve static files from the 'public' directory
-app.use(express.static("public"));
+app.use(compression());
 
+app.use(express.static("public"));
 // Function to handle the import of a page
 async function handleImport(req, res, a, parameters) {
   try {
@@ -231,7 +234,22 @@ let effectVariables = {};
   </script>
 </body>
 </html>`;
-  data.res.send(content);
+  let contentBuild = minify(content, {
+    collapseWhitespace: true,
+    collapseInlineTagWhitespace: true,
+    removeComments: true,
+    removeEmptyAttributes: true,
+    removeOptionalTags: true,
+    removeRedundantAttributes: true,
+    removeScriptTypeAttributes: true,
+    removeStyleLinkTypeAttributes: true,
+    useShortDoctype: true,
+    minifyJS: { inline: true }, // Modify this line
+    minifyCSS: { inline: true }, // Modify this line
+    minifyURLs: true,
+  });
+
+  data.res.send(contentBuild);
   // Build the HTML content
 }
 
