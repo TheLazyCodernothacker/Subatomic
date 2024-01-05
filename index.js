@@ -6,8 +6,6 @@ const port = 3001;
 const fs = require("fs");
 const path = require("path");
 const React = require("./createElement.js");
-const ejs = require("ejs");
-app.set("view engine", "ejs");
 
 // Serve static files from the 'public' directory
 app.use(express.static("public"));
@@ -168,9 +166,6 @@ app.listen(port, () => {
 });
 
 // Function to parse an array
-function parseArray(root, build) {
-  return root;
-}
 
 // Function to build a page
 function build(
@@ -185,24 +180,58 @@ function build(
 ) {
   // Render the page and get the variables
   let [ui, variables] = render(true, data, React);
-  let newData = {
-    variables: variables,
-    render: render,
-    state: state,
-    init: init,
-    components: components,
-    functions: functions,
-    title: title,
-    components: components,
-    description: description,
-    js: data.js,
-    css: data.css,
-    ui: ui,
-    createElement: React.createElement,
-    finalUI: parseArray(ui, true),
-    parseArray: parseArray,
-  };
-  data.res.render("main", newData);
+  let content = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/output.css">
+  ${data.css
+    .map((a) => {
+      return `<link rel="stylesheet" href="${a}">`;
+    })
+    .join("")}
+   ${data.js
+     .map((a) => {
+       return `<script defer src="${a}"></script>`;
+     })
+     .join("")}
+  <title>${title}</title>
+  <meta name="description" content="${description}">
+
+</head>
+<body>
+  ${ui}
+  <script>
+  React = {createElement: ${React.createElement.toString()}}
+      ${state.toString()}
+    ${render.toString()}
+    ${init.toString()}
+    ${components
+      .map((a) => {
+        return `${a.toString()}`;
+      })
+      .join(";")}
+      ${functions
+        .map((a) => {
+          return `${a.toString()}`;
+        })
+        .join(";")}
+let variables = {${Object.keys(variables).map((a) => {
+    return `${a}: ${
+      typeof variables[a] === "function"
+        ? variables[a].toString()
+        : JSON.stringify(variables[a])
+    }`;
+  })}};
+let effectVariables = {};
+    render();
+    init();
+  </script>
+</body>
+</html>`;
+  data.res.send(content);
   // Build the HTML content
 }
 
