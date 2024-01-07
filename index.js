@@ -8,9 +8,58 @@ const path = require("path");
 const React = require("./createElement.js");
 const minify = require("html-minifier").minify;
 const compression = require("compression");
+const session = require("express-session");
+
+app.use(
+  session({
+    secret: "your_secret_key", // replace 'your_secret_key' with your actual secret key
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+require("dotenv").config();
+
+const passport = require("passport");
+const GitHubStrategy = require("passport-github").Strategy;
+
+passport.use(
+  new GitHubStrategy(
+    {
+      clientID: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      callbackURL: "http://localhost:3001/auth/github/callback",
+    },
+    function (accessToken, refreshToken, profile, cb) {
+      // Find or create a user in your database and call `cb` with the user
+      // For now, we'll just return the profile
+      cb(null, profile);
+    }
+  )
+);
+
+passport.serializeUser(function (user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function (user, done) {
+  done(null, user);
+});
 
 // Serve static files from the 'public' directory
 app.use(compression());
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.get("/auth/github", passport.authenticate("github"));
+
+app.get(
+  "/auth/github/callback",
+  passport.authenticate("github", { failureRedirect: "/login" }),
+  function (req, res) {
+    // Successful authentication, redirect home.
+    res.redirect("/");
+  }
+);
 
 app.use(express.static("public"));
 // Function to handle the import of a page

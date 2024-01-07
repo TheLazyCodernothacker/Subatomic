@@ -2,6 +2,7 @@
 import React from "@/createElement.js";
 import Button from "@/lib/components/Button.mjs";
 import useEffect from "@/useEffect.js";
+
 // Initialize an empty variables object
 let variables = {};
 
@@ -26,6 +27,8 @@ function render(build, data) {
   let ui = (
     <div>
       <h1 class="text-4xl bg-red-400">Test</h1>
+      <a href="/auth/github">Login with GitHub</a>
+      <a href="/protected">View protected route</a>
       <h1>{JSON.stringify(variables.json)}</h1>
       <button
         onclick={() => {
