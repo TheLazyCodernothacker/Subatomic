@@ -9,6 +9,7 @@ const React = require("./createElement.js");
 const minify = require("html-minifier").minify;
 const compression = require("compression");
 const session = require("express-session");
+const findImports = require("find-imports");
 
 app.use(
   session({
@@ -61,19 +62,45 @@ app.get(
   }
 );
 
+function isMiddleware(func) {
+  const funcString = func.toString();
+  return /\buse middleware\b/.test(funcString);
+}
+
+const parser = require("@babel/parser");
+
 app.use(express.static("public"));
 // Function to handle the import of a page
-async function handleImport(req, res, a, parameters) {
+async function handleImport(req, res, a, parameters, path) {
   try {
     // Initialize data object and get default data from imported module
     let data = {};
-    let defaultData = a.default;
+    console.log(a);
+    let functions = [];
+    let middleware = [];
+    Object.values(a).forEach((b) => {
+      if (typeof b === "function") {
+        if (isMiddleware(b)) {
+          middleware.push(b);
+        } else if (
+          b.name !== "state" &&
+          b.name !== "init" &&
+          b.name !== "render"
+        ) {
+          functions.push(b);
+        }
+      }
+    });
+    console.log(functions);
+    console.log(middleware);
+    //get the file path for the noncompiled so like page.js
+
     let continueBuild = true;
 
     // Run all middleware functions
     var variables = {};
     async function runMiddleware() {
-      for (const a of defaultData.middleware) {
+      for (const a of middleware) {
         try {
           // Wait for the middleware function to complete before moving on
           const newVariables = await a(req, res, variables);
@@ -101,19 +128,18 @@ async function handleImport(req, res, a, parameters) {
     // Add parameters and other data to the data object
     data.props = variables;
     data.parameters = parameters;
-    data.js = defaultData.js;
-    data.css = defaultData.css;
+    data.js = a.page.js;
+    data.css = a.page.css;
     data.res = res;
 
     // Send the built page to the client
     build(
-      defaultData.render,
-      defaultData.state,
-      defaultData.init,
-      defaultData.components,
-      defaultData.functions,
-      defaultData.title,
-      defaultData.description,
+      a.render,
+      a.state,
+      a.init,
+      functions,
+      a.page.title,
+      a.page.description,
       data
     );
   } catch (e) {
@@ -184,7 +210,13 @@ function initPages() {
           }
         });
         import(`./lib/pages/${routes.join("/")}/page.mjs`).then((a) => {
-          handleImport(req, res, a, parameters);
+          handleImport(
+            req,
+            res,
+            a,
+            parameters,
+            `./lib/pages/${routes.join("/")}/page.mjs`
+          );
         });
       });
     }
@@ -208,7 +240,7 @@ app.get("/robots.txt", (req, res) => {
 // Set up the route for the home page
 app.get("/", (req, res) => {
   import("./lib/pages/page.mjs").then((a) => {
-    handleImport(req, res, a, {}, "/output.css");
+    handleImport(req, res, a, {}, "./lib/pages/page.mjs");
   });
 });
 
@@ -220,16 +252,7 @@ app.listen(port, () => {
 // Function to parse an array
 
 // Function to build a page
-function build(
-  render,
-  state,
-  init,
-  components,
-  functions,
-  title,
-  description,
-  data
-) {
+function build(render, state, init, functions, title, description, data) {
   // Render the page and get the variables
   let [ui, variables] = render(true, data, React);
   let content = `<!DOCTYPE html>
@@ -260,11 +283,6 @@ function build(
       ${state.toString()}
     ${render.toString()}
     ${init.toString()}
-    ${components
-      .map((a) => {
-        return `${a.toString()}`;
-      })
-      .join(";")}
       ${functions
         .map((a) => {
           return `${a.toString()}`;
